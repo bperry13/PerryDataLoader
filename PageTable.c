@@ -7,19 +7,14 @@
 
 #include "PageTable.h"
 
-struct page_table_entry {
-    int frame;
-    unsigned int flags;
-    unsigned int order;
-    int last;
-    unsigned int freq;
-};
+struct page_table_entry;
 
 struct page_table {
     enum replacement_algorithm type;
     int num_pages;
-    struct page_table_entry *pages;
+    //struct page_table_entry *pages;
     int num_frames;
+    int *page_table;
     int *frames;
     int page_faults;
     int head;
@@ -42,6 +37,12 @@ struct page_table* page_table_create(int page_count, int frame_count, enum repla
     p->num_frames = frame_count;
     p->type = algorithm;
     p->verbose = verbose;
+    p->page_table = malloc(sizeof(int) * p->num_pages);
+    p->frames = malloc(sizeof(int) * p->num_frames);
+    //set all frames to empty
+    for (int i = 0; i < p->num_frames; i++) {
+        p->frames[i] = -1;
+    }
     return p;
 }
 
@@ -62,15 +63,22 @@ void page_table_destroy(struct page_table** pt) {
  * @param page The page being accessed.
  */
 void page_table_access_page(struct page_table *pt, int page) {
+
     //FIFO = 0, LRU = 1, MFU = 2
+
 
     //FIFO
     if (pt->type == 0) {
         printf("running FIFO\n");
-        //iterate through frames
 
-        //if a spot is open
-
+        //if frame is empty enter page
+        for (int i = 0; i < pt->num_frames; i++) {
+            if (pt->frames[i] == -1) {
+                pt->frames[i] = page;
+                pt->page_faults++;
+                break;
+            }
+        }
         // enter the page in that spot
         // add a page fault
 
@@ -86,11 +94,21 @@ void page_table_access_page(struct page_table *pt, int page) {
     //LRU
     if (pt->type == 1) {
         printf("running LRU\n");
+        //if frame is empty enter page
+        for (int i = 0; i < pt->num_frames; i++) {
+            if (pt->frames[i] == -1) {
+                pt->frames[i] = page;
+                pt->page_faults++;
+                break;
+            }
+        }
     }
+
 
     //MFU
     if (pt->type == 2) {
         printf("running MFU\n");
+        pt->frames[0] = 3;
     }
 
 }
@@ -102,7 +120,24 @@ void page_table_access_page(struct page_table *pt, int page) {
  * @param pt A page table object.
  */
 void page_table_display(struct page_table* pt) {
+    char* type = NULL;
+    if (pt->type == 0) {
+        type = "FIFO";
+    }
+    if (pt->type == 1) {
+        type = "LRU";
+    }
+    if (pt->type == 2) {
+        type = "MFU";
+    }
 
+    printf("====Page Table====\n");
+    printf("Mode: %u\n", type);
+    printf("Page Faults: %d\n", pt->page_faults);
+    printf("page\tframe | dirty\tvalid\n");
+    for (int i = 0; i < pt->num_pages; i++) {
+        printf("%d\t\t%d\t  | %d\t\t%d\n", i, pt->frames[i], 0, 0); //TODO: fix entries
+    }
 }
 
 /**
@@ -111,14 +146,6 @@ void page_table_display(struct page_table* pt) {
  * @param pt A page table object.
  */
 void page_table_display_contents(struct page_table *pt) {
-    /*
-    printf("====Page Table====\n");
-    printf("Mode: %u\n", pt->type);
-    printf("Page Faults: %d\n", pt->page_faults);
-    printf("page\tframe | dirty\tvalid\n");
-    for (int i = 0; i < pt->num_pages; i++) {
-        printf("%d\t\t%d\t  | %d\t\t%d\n", i, 0, 0, 0); //TODO: fix entries
-    }
-    */
+
 }
 
