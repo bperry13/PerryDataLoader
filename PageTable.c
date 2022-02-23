@@ -51,7 +51,7 @@ struct page_table* page_table_create(int page_count, int frame_count, enum repla
  * @param pt A page table object.
  */
 void page_table_destroy(struct page_table** pt) {
-    free(pt);
+    free(*pt);
     pt = NULL;
 }
 
@@ -62,6 +62,36 @@ void page_table_destroy(struct page_table** pt) {
  * @param page The page being accessed.
  */
 void page_table_access_page(struct page_table *pt, int page) {
+    //FIFO = 0, LRU = 1, MFU = 2
+
+    //FIFO
+    if (pt->type == 0) {
+        printf("running FIFO\n");
+        //iterate through frames
+
+        //if a spot is open
+
+        // enter the page in that spot
+        // add a page fault
+
+        //iterate through frames again
+        //if value matches an existing frame
+        // do nothing
+        //else
+        //find the frame currently in the longest
+        // enter the page in that spot
+        //add a page fault
+    }
+
+    //LRU
+    if (pt->type == 1) {
+        printf("running LRU\n");
+    }
+
+    //MFU
+    if (pt->type == 2) {
+        printf("running MFU\n");
+    }
 
 }
 
@@ -81,6 +111,14 @@ void page_table_display(struct page_table* pt) {
  * @param pt A page table object.
  */
 void page_table_display_contents(struct page_table *pt) {
-
+    /*
+    printf("====Page Table====\n");
+    printf("Mode: %u\n", pt->type);
+    printf("Page Faults: %d\n", pt->page_faults);
+    printf("page\tframe | dirty\tvalid\n");
+    for (int i = 0; i < pt->num_pages; i++) {
+        printf("%d\t\t%d\t  | %d\t\t%d\n", i, 0, 0, 0); //TODO: fix entries
+    }
+    */
 }
 
